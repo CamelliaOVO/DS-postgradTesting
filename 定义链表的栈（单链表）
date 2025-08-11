@@ -1,0 +1,118 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <stdbool.h>
+
+// 定义栈节点结构体
+typedef struct StackNode {
+    int data;               // 数据域
+    struct StackNode *next; // 指针域，指向下一个节点
+} StackNode;
+
+// 定义链式栈结构体
+typedef struct {
+    StackNode *top;         // 栈顶指针，指向链表头部
+    int size;               // 当前栈中元素个数
+    int max_size;           // 栈的最大容量，-1表示无限制
+} LinkedStack;
+
+// 初始化栈
+void InitStack(LinkedStack *stack, int max_size) {
+    if (stack == NULL) return;
+    stack->top = NULL;      // 栈顶指针初始化为空
+    stack->size = 0;        // 初始元素个数为0
+    stack->max_size = max_size; // 设置最大容量
+}
+
+// 判断栈是否为空
+bool IsEmpty(LinkedStack *stack) {
+    if (stack == NULL) return true;
+    return stack->size == 0; // 元素个数为0则为空
+}
+
+// 判断栈是否已满
+bool IsFull(LinkedStack *stack) {
+    if (stack == NULL) return false;
+    // 若max_size为-1，表示栈容量无限制，永远不满
+    if (stack->max_size == -1) return false;
+    return stack->size == stack->max_size;
+}
+
+// 入栈操作（在链表头部插入新节点）
+bool Push(LinkedStack *stack, int value) {
+    // 检查栈是否为空指针或栈已满
+    if (stack == NULL || IsFull(stack)) {
+        return false;
+    }
+    
+    // 创建新节点
+    StackNode *newNode = (StackNode *)malloc(sizeof(StackNode));
+    if (newNode == NULL) {
+        printf("内存分配失败，入栈失败\n");
+        return false;
+    }
+    
+    // 设置新节点数据
+    newNode->data = value;
+    // 新节点指向原栈顶节点
+    newNode->next = stack->top;
+    // 更新栈顶指针为新节点
+    stack->top = newNode;
+    // 栈元素个数加1
+    stack->size++;
+    
+    return true;
+}
+
+// 出栈操作（删除链表头部节点）
+bool Pop(LinkedStack *stack, int *value) {
+    // 检查栈是否为空指针、value是否为空指针或栈为空
+    if (stack == NULL || value == NULL || IsEmpty(stack)) {
+        return false;
+    }
+    
+    // 保存栈顶节点指针
+    StackNode *temp = stack->top;
+    // 获取栈顶元素值
+    *value = temp->data;
+    // 更新栈顶指针为下一个节点
+    stack->top = temp->next;
+    // 释放原栈顶节点内存
+    free(temp);
+    // 栈元素个数减1
+    stack->size--;
+    
+    return true;
+}
+
+// 示例用法
+int main() {
+    LinkedStack stack;
+    // 初始化栈，设置最大容量为5（-1表示无限制）
+    InitStack(&stack, 5);
+    
+    // 测试入栈操作
+    for (int i = 1; i <= 6; i++) {
+        if (Push(&stack, i)) {
+            printf("入栈成功: %d\n", i);
+        } else {
+            printf("入栈失败: %d（栈已满）\n", i);
+        }
+    }
+    
+    // 测试判空和判满
+    printf("栈是否为空: %s\n", IsEmpty(&stack) ? "是" : "否");
+    printf("栈是否已满: %s\n", IsFull(&stack) ? "是" : "否");
+    
+    // 测试出栈操作
+    int val;
+    while (!IsEmpty(&stack)) {
+        if (Pop(&stack, &val)) {
+            printf("出栈元素: %d\n", val);
+        }
+    }
+    
+    // 再次测试判空
+    printf("栈是否为空: %s\n", IsEmpty(&stack) ? "是" : "否");
+    
+    return 0;
+}
