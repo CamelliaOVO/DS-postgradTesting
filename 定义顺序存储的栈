@@ -1,0 +1,132 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <stdbool.h>
+
+// 定义栈的最大容量
+#define MAX_SIZE 100
+
+// 定义顺序栈结构体
+typedef struct {
+    int data[MAX_SIZE];  // 用数组存储栈元素
+    int top;             // 栈顶指针，-1表示栈空
+} SeqStack;
+
+// 初始化栈
+void InitStack(SeqStack *stack) {
+    if (stack == NULL) return;
+    stack->top = -1;  // 栈顶指针置为-1，表示栈为空
+}
+
+// 判断栈是否为空
+bool IsEmpty(SeqStack *stack) {
+    if (stack == NULL) return true;
+    return stack->top == -1;
+}
+
+// 判断栈是否已满
+bool IsFull(SeqStack *stack) {
+    if (stack == NULL) return false;
+    return stack->top == MAX_SIZE - 1;
+}
+
+// 入栈操作
+bool Push(SeqStack *stack, int value) {
+    // 检查栈是否为空指针或栈已满
+    if (stack == NULL || IsFull(stack)) {
+        return false;
+    }
+    
+    // 栈顶指针加1，然后存入数据
+    stack->data[++stack->top] = value;
+    return true;
+}
+
+// 出栈操作
+bool Pop(SeqStack *stack, int *value) {
+    // 检查栈是否为空指针或栈为空
+    if (stack == NULL || value == NULL || IsEmpty(stack)) {
+        return false;
+    }
+    
+    // 取出栈顶元素，然后栈顶指针减1
+    *value = stack->data[stack->top--];
+    return true;
+}
+
+// 获取栈顶元素（不弹出）
+bool GetTop(SeqStack *stack, int *value) {
+    // 检查栈是否为空指针或栈为空
+    if (stack == NULL || value == NULL || IsEmpty(stack)) {
+        return false;
+    }
+    
+    // 取出栈顶元素但不改变栈顶指针
+    *value = stack->data[stack->top];
+    return true;
+}
+
+// 清空栈
+void ClearStack(SeqStack *stack) {
+    if (stack != NULL) {
+        stack->top = -1;  // 只需将栈顶指针置为-1即可
+    }
+}
+
+// 获取栈的长度
+int GetLength(SeqStack *stack) {
+    if (stack == NULL) return 0;
+    return stack->top + 1;  // 栈顶指针+1即为元素个数
+}
+
+// 打印栈中所有元素（从栈底到栈顶）
+void PrintStack(SeqStack *stack) {
+    if (stack == NULL || IsEmpty(stack)) {
+        printf("栈为空\n");
+        return;
+    }
+    
+    printf("栈元素（从栈底到栈顶）: ");
+    for (int i = 0; i <= stack->top; i++) {
+        printf("%d ", stack->data[i]);
+    }
+    printf("\n");
+}
+
+// 示例用法
+int main() {
+    SeqStack stack;
+    InitStack(&stack);
+    
+    // 入栈操作
+    for (int i = 1; i <= 5; i++) {
+        if (Push(&stack, i)) {
+            printf("入栈成功: %d\n", i);
+        } else {
+            printf("入栈失败: %d\n", i);
+        }
+    }
+    
+    PrintStack(&stack);
+    printf("栈的长度: %d\n", GetLength(&stack));
+    
+    // 获取栈顶元素
+    int topVal;
+    if (GetTop(&stack, &topVal)) {
+        printf("栈顶元素: %d\n", topVal);
+    } else {
+        printf("获取栈顶元素失败\n");
+    }
+    
+    // 出栈操作
+    while (!IsEmpty(&stack)) {
+        int val;
+        if (Pop(&stack, &val)) {
+            printf("出栈元素: %d\n", val);
+        }
+    }
+    
+    PrintStack(&stack);
+    printf("栈的长度: %d\n", GetLength(&stack));
+    
+    return 0;
+}
