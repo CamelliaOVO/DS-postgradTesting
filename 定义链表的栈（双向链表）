@@ -1,0 +1,131 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <stdbool.h>
+
+// 定义双向链表节点结构体
+typedef struct Node {
+    int data;               // 数据域
+    struct Node *prev;      // 指向前一个节点的指针
+    struct Node *next;      // 指向后一个节点的指针
+} Node;
+
+// 定义双向链栈结构体
+typedef struct {
+    Node *top;              // 栈顶指针（指向链表尾部）
+    Node *bottom;           // 栈底指针（指向链表头部）
+    int size;               // 当前栈中元素个数
+    int max_size;           // 栈的最大容量，-1表示无限制
+} DoublyLinkedStack;
+
+// 初始化栈
+void InitStack(DoublyLinkedStack *stack, int max_size) {
+    if (stack == NULL) return;
+    stack->top = NULL;
+    stack->bottom = NULL;
+    stack->size = 0;
+    stack->max_size = max_size;
+}
+
+// 判断栈是否为空
+bool IsEmpty(DoublyLinkedStack *stack) {
+    if (stack == NULL) return true;
+    return stack->size == 0;
+}
+
+// 判断栈是否已满
+bool IsFull(DoublyLinkedStack *stack) {
+    if (stack == NULL) return false;
+    if (stack->max_size == -1) return false;  // -1表示无容量限制
+    return stack->size == stack->max_size;
+}
+
+// 入栈操作（在链表尾部添加新节点）
+bool Push(DoublyLinkedStack *stack, int value) {
+    if (stack == NULL || IsFull(stack)) {
+        return false;
+    }
+    
+    // 创建新节点
+    Node *newNode = (Node *)malloc(sizeof(Node));
+    if (newNode == NULL) {
+        printf("内存分配失败，入栈失败\n");
+        return false;
+    }
+    
+    newNode->data = value;
+    newNode->next = NULL;  // 新节点是最后一个节点，next为空
+    
+    if (IsEmpty(stack)) {
+        // 栈为空时，新节点既是栈顶也是栈底
+        newNode->prev = NULL;
+        stack->top = newNode;
+        stack->bottom = newNode;
+    } else {
+        // 栈不为空时，添加到尾部
+        newNode->prev = stack->top;
+        stack->top->next = newNode;
+        stack->top = newNode;  // 更新栈顶指针
+    }
+    
+    stack->size++;
+    return true;
+}
+
+// 出栈操作（删除链表尾部节点）
+bool Pop(DoublyLinkedStack *stack, int *value) {
+    if (stack == NULL || value == NULL || IsEmpty(stack)) {
+        return false;
+    }
+    
+    // 保存当前栈顶节点
+    Node *temp = stack->top;
+    *value = temp->data;
+    
+    if (stack->size == 1) {
+        // 只剩一个节点时，出栈后栈为空
+        stack->top = NULL;
+        stack->bottom = NULL;
+    } else {
+        // 多个节点时，更新栈顶指针
+        stack->top = temp->prev;
+        stack->top->next = NULL;
+    }
+    
+    // 释放节点内存
+    free(temp);
+    stack->size--;
+    return true;
+}
+
+// 示例用法
+int main() {
+    DoublyLinkedStack stack;
+    // 初始化栈，最大容量为5（-1表示无限制）
+    InitStack(&stack, 5);
+    
+    // 测试入栈操作
+    for (int i = 1; i <= 6; i++) {
+        if (Push(&stack, i)) {
+            printf("入栈成功: %d\n", i);
+        } else {
+            printf("入栈失败: %d（栈已满）\n", i);
+        }
+    }
+    
+    // 测试判空和判满
+    printf("栈是否为空: %s\n", IsEmpty(&stack) ? "是" : "否");
+    printf("栈是否已满: %s\n", IsFull(&stack) ? "是" : "否");
+    
+    // 测试出栈操作
+    int val;
+    while (!IsEmpty(&stack)) {
+        if (Pop(&stack, &val)) {
+            printf("出栈元素: %d\n", val);
+        }
+    }
+    
+    // 再次测试判空
+    printf("栈是否为空: %s\n", IsEmpty(&stack) ? "是" : "否");
+    
+    return 0;
+}
